@@ -3,7 +3,18 @@ package ru.practicum.ewm.server.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+import ru.practicum.ewm.server.model.dto.comment.CommentDtoIn;
+import ru.practicum.ewm.server.model.dto.comment.CommentDtoOut;
 import ru.practicum.ewm.server.model.dto.events.EventUpdateDtoIn;
 import ru.practicum.ewm.server.model.dto.events.EventsDtoIn;
 import ru.practicum.ewm.server.model.dto.events.EventsDtoOut;
@@ -44,6 +55,16 @@ public class PrivateController {
     }
 
     /*
+        Добавить комментарий
+     */
+    @PostMapping("/{userId}/event/{eventId}/comment")
+    @ResponseStatus(HttpStatus.CREATED)
+    public CommentDtoOut addComment(@PathVariable Long userId, @PathVariable Long eventId, @RequestBody @Valid CommentDtoIn commentDtoIn) {
+        log.info("Выполняется POST-запрос. Добавить комментарий.");
+        return service.addComment(userId, eventId, commentDtoIn);
+    }
+
+    /*
         Изменить событие пользователя
      */
     @PatchMapping("/{userId}/events/{eventId}")
@@ -70,6 +91,15 @@ public class PrivateController {
     public ParticipationRequestDtoOut cancelRequest(@PathVariable Long userId, @PathVariable Long requestId) {
         log.info("Выполняется PATCH-запрос. Отменить запрос.");
         return service.cancelRequest(userId, requestId);
+    }
+
+    /*
+        Изменить собственный комментарий
+     */
+    @PatchMapping("/{userId}/comment/{commentId}")
+    public CommentDtoOut editComment(@PathVariable Long userId, @PathVariable Long commentId, @RequestBody @Valid CommentDtoIn commentDtoIn) {
+        log.info("Выполняется PATCH-запрос. Изменить комментарий.");
+        return service.editComment(userId, commentId, commentDtoIn);
     }
 
     /*
@@ -110,5 +140,24 @@ public class PrivateController {
     public EventsDtoOut getEventByEventIdAndUserId(@PathVariable Long userId, @PathVariable Long eventId) {
         log.info("Выполняется GET-запрос. Получение события пользователя.");
         return service.getEventByIdAndUserId(userId, eventId);
+    }
+
+    /*
+        Получить все комментарии события
+     */
+    @GetMapping("/comment/{eventId}")
+    public List<CommentDtoOut> getAllCommitByEvent(@PathVariable Long eventId) {
+        log.info("Выполняется GET-запрос. Получение комментарии к событию.");
+        return service.getAllCommentByEvent(eventId);
+    }
+
+    /*
+        Удалить комментарий
+     */
+    @DeleteMapping("/{userId}/comment/{commentId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removeComment(@PathVariable Long userId, @PathVariable Long commentId) {
+        log.info("Выполняется DELETE-запрос. Удалить комментарий.");
+        service.removeComment(userId, commentId);
     }
 }

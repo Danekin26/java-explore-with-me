@@ -1,0 +1,448 @@
+{
+	"info": {
+		"_postman_id": "f26fad00-5def-4beb-9a36-3f8d3fd64635",
+		"name": "feature",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "28603697"
+	},
+	"item": [
+		{
+			"name": "Создать комментарий",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Ответ должен содержать код статуса 201 и данные в формате json\", function() {\r",
+							"    pm.response.to.have.status(201);\r",
+							"    pm.response.to.be.withBody; \r",
+							"    pm.response.to.be.json; \r",
+							"});\r",
+							"\r",
+							"var res = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Сравнение значений и типов данных полей\", function() {\r",
+							"    pm.expect(res.comment).to.eql(\"comment\");\r",
+							"\r",
+							"    pm.expect(typeof res.idComment).to.eql(\"number\");\r",
+							"    pm.expect(typeof res.commentator).to.eql(\"object\");\r",
+							"    pm.expect(typeof res.commentator.id).to.eql(\"number\");\r",
+							"    pm.expect(typeof res.commentator.name).to.eql(\"string\");\r",
+							"    pm.expect(typeof res.event).to.eql(\"object\");\r",
+							"    pm.expect(typeof res.event.id).to.eql(\"number\");\r",
+							"    pm.expect(typeof res.event.annotation).to.eql(\"string\");\r",
+							"    pm.expect(typeof res.event.category).to.eql(\"object\");\r",
+							"    pm.expect(typeof res.event.category.id).to.eql(\"number\");\r",
+							"    pm.expect(typeof res.event.category.name).to.eql(\"string\");\r",
+							"    pm.expect(typeof res.event.confirmedRequests).to.eql(\"number\");\r",
+							"    pm.expect(typeof res.event.eventDate).to.eql(\"string\");\r",
+							"    pm.expect(typeof res.event.initiator).to.eql(\"object\");\r",
+							"    pm.expect(typeof res.event.initiator.id).to.eql(\"number\");\r",
+							"    pm.expect(typeof res.event.initiator.name).to.eql(\"string\");\r",
+							"    pm.expect(typeof res.event.paid).to.eql(\"boolean\");\r",
+							"    pm.expect(typeof res.event.title).to.eql(\"string\");\r",
+							"    pm.expect(typeof res.event.views).to.eql(\"number\");\r",
+							"    pm.expect(typeof res.created).to.eql(\"string\");\r",
+							"    pm.expect(typeof res.comment).to.eql(\"string\");\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"comment\" :\"comment\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{baseUrl}}/users/{{userId1}}/event/{{eventId}}/comment"
+			},
+			"response": []
+		},
+		{
+			"name": "Создать комментарий для несуществующего пользователя",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Статус 404\", function() {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"comment\" :\"comment\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{baseUrl}}/users/3333/event/{{eventId}}/comment"
+			},
+			"response": []
+		},
+		{
+			"name": "Создать комментарий для несуществующего события",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Статус 404\", function() {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"comment\" :\"comment\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{baseUrl}}/users/{{userId1}}/event/3333/comment"
+			},
+			"response": []
+		},
+		{
+			"name": "Создать пустой комментарий",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Статус 400\", function() {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"comment\" :\"\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{baseUrl}}/users/{{userId1}}/event/{{eventId}}/comment"
+			},
+			"response": []
+		},
+		{
+			"name": "Изменить собственный комментарий",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Ответ должен содержать код статуса 200 и данные в формате json\", function() {\r",
+							"    pm.response.to.have.status(200);\r",
+							"    pm.response.to.be.withBody; \r",
+							"    pm.response.to.be.json; \r",
+							"});\r",
+							"\r",
+							"var res = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Сравнение значений и типов данных полей\", function() {\r",
+							"    pm.expect(res.comment).to.eql(\"new comment\");\r",
+							"\r",
+							"    pm.expect(typeof res.idComment).to.eql(\"number\");\r",
+							"    pm.expect(typeof res.commentator).to.eql(\"object\");\r",
+							"    pm.expect(typeof res.commentator.id).to.eql(\"number\");\r",
+							"    pm.expect(typeof res.commentator.name).to.eql(\"string\");\r",
+							"    pm.expect(typeof res.event).to.eql(\"object\");\r",
+							"    pm.expect(typeof res.event.id).to.eql(\"number\");\r",
+							"    pm.expect(typeof res.event.annotation).to.eql(\"string\");\r",
+							"    pm.expect(typeof res.event.category).to.eql(\"object\");\r",
+							"    pm.expect(typeof res.event.category.id).to.eql(\"number\");\r",
+							"    pm.expect(typeof res.event.category.name).to.eql(\"string\");\r",
+							"    pm.expect(typeof res.event.confirmedRequests).to.eql(\"number\");\r",
+							"    pm.expect(typeof res.event.eventDate).to.eql(\"string\");\r",
+							"    pm.expect(typeof res.event.initiator).to.eql(\"object\");\r",
+							"    pm.expect(typeof res.event.initiator.id).to.eql(\"number\");\r",
+							"    pm.expect(typeof res.event.initiator.name).to.eql(\"string\");\r",
+							"    pm.expect(typeof res.event.paid).to.eql(\"boolean\");\r",
+							"    pm.expect(typeof res.event.title).to.eql(\"string\");\r",
+							"    pm.expect(typeof res.event.views).to.eql(\"number\");\r",
+							"    pm.expect(typeof res.created).to.eql(\"string\");\r",
+							"    pm.expect(typeof res.comment).to.eql(\"string\");\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"comment\" :\"new comment\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{baseUrl}}/users/{{userId1}}/comment/1"
+			},
+			"response": []
+		},
+		{
+			"name": "Изменить не свой комментарий",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Статус 400\", function() {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"comment\" :\"new comment\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{baseUrl}}/users/{{userId2}}/comment/1"
+			},
+			"response": []
+		},
+		{
+			"name": "Изменить не существующий комментарий",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Статус 404\", function() {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"comment\" :\"new comment\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{baseUrl}}/users/{{userId1}}/comment/122"
+			},
+			"response": []
+		},
+		{
+			"name": "Получить комментарии к событию",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"pm.test(\"Ответ должен содержать код статуса 200 и данные в формате json\", function() {\r",
+							"    pm.response.to.have.status(200);\r",
+							"    pm.response.to.be.withBody; \r",
+							"    pm.response.to.be.json; \r",
+							"});\r",
+							"\r",
+							"var res = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Проверка массива объектов\", function() {\r",
+							"    pm.expect(res).to.be.an(\"array\"); \r",
+							"    pm.expect(res.length).to.eql(1); \r",
+							"\r",
+							"    var commentObject = res[0]; \r",
+							"\r",
+							"    pm.expect(commentObject.commentator).to.be.an(\"object\");\r",
+							"    pm.expect(commentObject.event).to.be.an(\"object\");\r",
+							"    pm.expect(commentObject.event.category).to.be.an(\"object\");\r",
+							"    pm.expect(commentObject.event.initiator).to.be.an(\"object\");\r",
+							"    pm.expect(commentObject.comment).to.eql(\"comment\");\r",
+							"\r",
+							"    pm.expect(typeof commentObject.idComment).to.eql(\"number\");\r",
+							"    pm.expect(typeof commentObject.commentator).to.eql(\"object\");\r",
+							"    pm.expect(typeof commentObject.commentator.id).to.eql(\"number\");\r",
+							"    pm.expect(typeof commentObject.commentator.name).to.eql(\"string\");\r",
+							"    pm.expect(typeof commentObject.event).to.eql(\"object\");\r",
+							"    pm.expect(typeof commentObject.event.id).to.eql(\"number\");\r",
+							"    pm.expect(typeof commentObject.event.annotation).to.eql(\"string\");\r",
+							"    pm.expect(typeof commentObject.event.category).to.eql(\"object\");\r",
+							"    pm.expect(typeof commentObject.event.category.id).to.eql(\"number\");\r",
+							"    pm.expect(typeof commentObject.event.category.name).to.eql(\"string\");\r",
+							"    pm.expect(typeof commentObject.event.confirmedRequests).to.eql(\"number\");\r",
+							"    pm.expect(typeof commentObject.event.eventDate).to.eql(\"string\");\r",
+							"    pm.expect(typeof commentObject.event.initiator).to.eql(\"object\");\r",
+							"    pm.expect(typeof commentObject.event.initiator.id).to.eql(\"number\");\r",
+							"    pm.expect(typeof commentObject.event.initiator.name).to.eql(\"string\");\r",
+							"    pm.expect(typeof commentObject.event.paid).to.eql(\"boolean\");\r",
+							"    pm.expect(typeof commentObject.event.title).to.eql(\"string\");\r",
+							"    pm.expect(typeof commentObject.event.views).to.eql(\"number\");\r",
+							"    pm.expect(typeof commentObject.created).to.eql(\"string\");\r",
+							"    pm.expect(typeof commentObject.comment).to.eql(\"string\");\r",
+							"});\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "{{baseUrl}}/users/comment/{{eventId}}"
+			},
+			"response": []
+		},
+		{
+			"name": "Удалить комментарий",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Статус 204\", function() {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": "{{baseUrl}}/users/{{userId1}}/comment/1"
+			},
+			"response": []
+		},
+		{
+			"name": "Получить список, после удаления комментария",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Ответ должен содержать код статуса 200 и данные в формате json\", function() {\r",
+							"    pm.response.to.have.status(200);\r",
+							"    pm.response.to.be.withBody; \r",
+							"    pm.response.to.be.json; \r",
+							"});\r",
+							"\r",
+							"var responseData = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Проверка пустого массива\", function() {\r",
+							"    pm.expect(responseData).to.be.an(\"array\"); \r",
+							"    pm.expect(responseData).to.have.length(0); \r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "{{baseUrl}}/users/comment/{{eventId}}"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "userId1",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "userId2",
+			"value": "2",
+			"type": "string"
+		},
+		{
+			"key": "eventId",
+			"value": "1",
+			"type": "string"
+		}
+	]
+}

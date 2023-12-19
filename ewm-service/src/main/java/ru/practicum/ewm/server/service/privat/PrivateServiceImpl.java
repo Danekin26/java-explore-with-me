@@ -7,16 +7,28 @@ import ru.practicum.ewm.server.exception.IncorrectlyCreatedRequestExceptions;
 import ru.practicum.ewm.server.exception.InvalidDataEnteredException;
 import ru.practicum.ewm.server.exception.LackOfDataInDatabaseExceptions;
 import ru.practicum.ewm.server.exception.ViolationOfDataUniquenessExceptions;
+import ru.practicum.ewm.server.model.dto.comment.CommentDtoIn;
+import ru.practicum.ewm.server.model.dto.comment.CommentDtoOut;
 import ru.practicum.ewm.server.model.dto.events.EventUpdateDtoIn;
 import ru.practicum.ewm.server.model.dto.events.EventsDtoIn;
 import ru.practicum.ewm.server.model.dto.events.EventsDtoOut;
 import ru.practicum.ewm.server.model.dto.participation_request.EventRequestStatusUpdateDtoIn;
 import ru.practicum.ewm.server.model.dto.participation_request.EventRequestStatusUpdateResult;
 import ru.practicum.ewm.server.model.dto.participation_request.ParticipationRequestDtoOut;
-import ru.practicum.ewm.server.model.entity.*;
+import ru.practicum.ewm.server.model.entity.Categories;
+import ru.practicum.ewm.server.model.entity.Comment;
+import ru.practicum.ewm.server.model.entity.Events;
+import ru.practicum.ewm.server.model.entity.Location;
+import ru.practicum.ewm.server.model.entity.ParticipationRequest;
+import ru.practicum.ewm.server.model.entity.User;
 import ru.practicum.ewm.server.model.enums.RequestStatus;
 import ru.practicum.ewm.server.model.enums.StateEnum;
-import ru.practicum.ewm.server.repository.*;
+import ru.practicum.ewm.server.repository.CategoriesRepository;
+import ru.practicum.ewm.server.repository.CommentRepository;
+import ru.practicum.ewm.server.repository.EventsRepository;
+import ru.practicum.ewm.server.repository.LocationRepository;
+import ru.practicum.ewm.server.repository.ParticipationRequestRepository;
+import ru.practicum.ewm.server.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -24,9 +36,18 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import static ru.practicum.ewm.server.model.dto.events.EventsMapper.*;
+import static ru.practicum.ewm.server.model.dto.comment.CommentMapper.allCommentToAllCommentDtoOut;
+import static ru.practicum.ewm.server.model.dto.comment.CommentMapper.commentToCommentDtoOut;
+import static ru.practicum.ewm.server.model.dto.comment.CommentMapper.coomentDtoInMergeComment;
+import static ru.practicum.ewm.server.model.dto.comment.CommentMapper.coommentDtoInToComment;
+import static ru.practicum.ewm.server.model.dto.events.EventsMapper.allEventToEventDtoOut;
+import static ru.practicum.ewm.server.model.dto.events.EventsMapper.eventsDtoInToEvents;
+import static ru.practicum.ewm.server.model.dto.events.EventsMapper.eventsToEventsDtoOut;
+import static ru.practicum.ewm.server.model.dto.events.EventsMapper.eventsUpdateDtoMergeEvents;
 import static ru.practicum.ewm.server.model.dto.location.LocationMapper.locationDtoOutToLocation;
-import static ru.practicum.ewm.server.model.dto.participation_request.ParticipationRequestMapper.*;
+import static ru.practicum.ewm.server.model.dto.participation_request.ParticipationRequestMapper.allRequestToAllRequestDtoOut;
+import static ru.practicum.ewm.server.model.dto.participation_request.ParticipationRequestMapper.participationRequestDtoInToParticipationRequest;
+import static ru.practicum.ewm.server.model.dto.participation_request.ParticipationRequestMapper.participationRequestToParticipationRequestDtoOut;
 import static ru.practicum.ewm.server.model.enums.RequestStatus.CONFIRMED;
 import static ru.practicum.ewm.server.model.enums.RequestStatus.REJECTED;
 import static ru.practicum.ewm.server.model.enums.StateActionEnum.CANCEL_REVIEW;
@@ -43,6 +64,7 @@ public class PrivateServiceImpl implements PrivateService {
     private final UserRepository userRepository;
     private final ParticipationRequestRepository participationRequestRepository;
     private final LocationRepository locationRepository;
+    private final CommentRepository commentRepository;
 
     @Override
     public EventsDtoOut createEvents(Long userId, EventsDtoIn eventsDtoIn) {
@@ -207,5 +229,43 @@ public class PrivateServiceImpl implements PrivateService {
     @Override
     public List<ParticipationRequestDtoOut> getRequestsByUser(Long userId) {
         return allRequestToAllRequestDtoOut(participationRequestRepository.findAllByRequesterIdUser(userId));
+    }
+
+    @Override
+    public CommentDtoOut addComment(Long userId, Long eventId, CommentDtoIn commentDtoIn) {
+        User commentator = userRepository.findById(userId).orElseThrow(() -> new LackOfDataInDatabaseExceptions(String.format("Пользователя id = %d не существует", userId)));
+        Events events = eventsRepository.findById(eventId).orElseThrow(() -> new LackOfDataInDatabaseExceptions(String.format("События id = %d не существует", eventId)));
+        Comment comment = commentRepository.save(coommentDtoInToComment(commentDtoIn, events, commentator));
+        return commentToCommentDtoOut(comment);
+    }
+
+    @Override
+    public CommentDtoOut editComment(Long userId, Long commentId, CommentDtoIn commentDtoIn) {
+        User commentator = userRepository.findById(userId).orElseThrow(() -> new LackOfDataInDatabaseExceptions(String.format("Пользователя id = %d не существует", userId)));
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new LackOfDataInDatabaseExceptions(String.format("Комментария id = %d не существует", commentId)));
+        if (!Objects.equals(comment.getCommentator().getIdUser(), commentator.getIdUser())) {
+            throw new IncorrectlyCreatedRequestExceptions(String.format("Пользователь id = %d не является владельцем комментария id %d", userId, commentId));
+        }
+
+        Comment edit = coomentDtoInMergeComment(comment, commentDtoIn);
+
+        return commentToCommentDtoOut(edit);
+    }
+
+    @Override
+    public void removeComment(Long userId, Long commentId) {
+        User commentator = userRepository.findById(userId).orElseThrow(() -> new LackOfDataInDatabaseExceptions(String.format("Пользователя id = %d не существует", userId)));
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new LackOfDataInDatabaseExceptions(String.format("Комментария id = %d не существует", commentId)));
+        if (!Objects.equals(comment.getCommentator().getIdUser(), commentator.getIdUser())) {
+            throw new IncorrectlyCreatedRequestExceptions(String.format("Пользователь id = %d не является владельцем комментария id %d", userId, commentId));
+        }
+        commentRepository.delete(comment);
+    }
+
+    @Override
+    public List<CommentDtoOut> getAllCommentByEvent(Long eventId) {
+        Events events = eventsRepository.findById(eventId).orElseThrow(() -> new LackOfDataInDatabaseExceptions(String.format("События id = %d не существует", eventId)));
+        List<Comment> allComment = commentRepository.findAllByEventIdEvents(eventId);
+        return allCommentToAllCommentDtoOut(allComment);
     }
 }

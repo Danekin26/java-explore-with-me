@@ -1,5 +1,7 @@
 package ru.practicum.ewm.server.service.privat;
 
+import ru.practicum.ewm.server.model.dto.comment.CommentDtoIn;
+import ru.practicum.ewm.server.model.dto.comment.CommentDtoOut;
 import ru.practicum.ewm.server.model.dto.events.EventUpdateDtoIn;
 import ru.practicum.ewm.server.model.dto.events.EventsDtoIn;
 import ru.practicum.ewm.server.model.dto.events.EventsDtoOut;
@@ -57,4 +59,24 @@ public interface PrivateService {
         Получить заявки пользователя
      */
     List<ParticipationRequestDtoOut> getRequestsByUser(Long userId);
+
+    /*
+        Создать комментарий
+     */
+    CommentDtoOut addComment(Long userId, Long eventId, CommentDtoIn commentDtoIn);
+
+    /*
+        Изменить личный комментарий
+     */
+    CommentDtoOut editComment(Long userId, Long commentId, CommentDtoIn commentDtoIn);
+
+    /*
+        Удалить личный комментарий
+     */
+    void removeComment(Long userId, Long commentId);
+
+    /*
+        Вывести комментарии к событию
+     */
+    List<CommentDtoOut> getAllCommentByEvent(Long eventId);
 }
