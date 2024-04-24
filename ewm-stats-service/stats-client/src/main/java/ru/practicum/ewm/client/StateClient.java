@@ -14,7 +14,7 @@ import java.util.Map;
 public class StateClient {
     private final String statServerUrl = "http://stats-server:9090";
 
-    //private final String statServerUrl = "http://localhost:9090"; ПРИ ЗАПУСКЕ С IDEA
+    //private final String statServerUrl = "http://localhost:9090";   ПРИ ЗАПУСКЕ С IDEA
     public final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private final RestTemplate restTemplate = new RestTemplate();
 
